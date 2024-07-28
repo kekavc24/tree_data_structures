@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'package:tree_data_structures/src/printable_tree.dart';
+
 /// Comparator function that conforms to the [Comparable] interface
 typedef BinaryCompare<T, U> = int Function(T thiz, U that);
 
@@ -27,7 +29,7 @@ enum DepthTransversal {
 /// search tree but with a cheeky trick.
 ///
 /// See https://en.wikipedia.org/wiki/AVL_tree
-class CheekyAvlTree<T> {
+class CheekyAvlTree<T> implements PrintableTree {
   /// [comparator] - used to compare elements before insertion. The function
   /// is shadow definition of [Comparable].
   CheekyAvlTree({required this.comparator});
@@ -51,6 +53,15 @@ class CheekyAvlTree<T> {
   /// Returns the longest path to a leaf node.
   int get height => _height(_root);
 
+  @override
+  bool get isEmpty => _root == null;
+
+  @override
+  String get name => 'AvlTree';
+
+  @override
+  List<PrintableNode> get rootNodes => [if (!isEmpty) _root!];
+
   /// Removes all objects present in this tree.
   void clear() {
     _root = null;
@@ -73,7 +84,7 @@ class CheekyAvlTree<T> {
   void insert(T value) {
     final newNode = _AvlNode(value);
 
-    if (_root == null) {
+    if (isEmpty) {
       _root = newNode;
       _count++;
       return;
@@ -472,7 +483,7 @@ class CheekyAvlTree<T> {
 }
 
 /// A node within a [CheekyAvlTree].
-class _AvlNode<T> {
+class _AvlNode<T> implements PrintableNode {
   _AvlNode(this.value);
 
   final T value;
@@ -483,10 +494,20 @@ class _AvlNode<T> {
 
   bool get isRoot => parent == null;
 
+  @override
   bool get isLeaf => left == null && right == null;
 
   @override
   String toString() => '$value';
+
+  @override
+  String get printableValue => toString();
+
+  @override
+  List<PrintableNode> get children => [
+        if (left != null) left!,
+        if (right != null) right!,
+      ];
 }
 
 /// Searches an [CheekyAvlTree] for an [_AvlNode] where
