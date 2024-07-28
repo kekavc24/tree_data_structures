@@ -24,8 +24,10 @@ abstract interface class PrintableNode<T> {
   List<PrintableNode<T>> get children;
 }
 
+/// Represent the desire character set to use. Implicit ascii or rendered utf
 enum CharSet { utf, ascii }
 
+/// Returns a branch for use within a [PrintableTree] or [PrintableNode]
 String _branch(CharSet charset, {required bool isLastChild}) {
   return switch (charset) {
     CharSet.utf when isLastChild => '└──',
@@ -35,14 +37,23 @@ String _branch(CharSet charset, {required bool isLastChild}) {
   };
 }
 
+/// Returns a pipe that acts as a separator between [PrintableNode]s of
+/// another [PrintableNode] or of a [PrintableTree]
+String _separator(CharSet charset) => charset == CharSet.utf ? '│' : '|';
+
+/// Generates space based on the [count] provided
 String _space(int count) => count == 0 ? '' : ' ' * count;
 
-const _empty = '\u2205';
+/// Ø - NULL/Empty set character.
+const _empty = '\u00D8';
 
+/// Generates a tree for any [PrintableTree] provided.
+///
+/// If [centerWithName] is `true`, then the tree's root axis starts at the
+/// centre of the [tree.name] provided. Otherwise, axis starts at the beginning.
 String treeView(
   PrintableTree tree, {
   CharSet charSet = CharSet.utf,
-  int spacing = 2,
   bool centerWithName = true,
   String lineBreak = '\n',
 }) {
@@ -57,16 +68,15 @@ String treeView(
   buffer.write(lineBreak);
   final distanceFromEdge = centerWithName ? name.length ~/ 2 : 0;
   final spaceFromEdge = _space(distanceFromEdge);
-  final defaultIndent = _space(spacing);
   final lastIndex = rootNodes.length - 1;
 
   for (final (index, rNode) in rootNodes.indexed) {
     _nodeView(
       buffer,
       rNode,
-      indentLevel: 0,
-      spaceFromEdge: spaceFromEdge,
-      defaultIndent: defaultIndent,
+      isRoot: true,
+      prefix: spaceFromEdge,
+      separator: _separator(charSet),
       charset: charSet,
       isLastChild: index == lastIndex,
       lineBreak: lineBreak,
@@ -75,38 +85,49 @@ String treeView(
   return buffer.toString();
 }
 
+/// Recursively appends a single [node]'s view to the [buffer] provided.
 void _nodeView(
   StringBuffer buffer,
   PrintableNode node, {
-  required int indentLevel,
-  required String spaceFromEdge,
-  required String defaultIndent,
+  required bool isRoot,
+  required String prefix,
+  required String separator,
   required CharSet charset,
   required bool isLastChild,
   required String lineBreak,
 }) {
   final PrintableNode(:isLeaf, :printableValue, :children) = node;
 
-  final spacing = spaceFromEdge + _space(indentLevel * 4);
+  /// If not root,
+  ///   1. 3 characters for the branch.
+  ///   2. 1 for the space we apply after the branch
+  var indentSize = isRoot ? 0 : 4;
+
+  /// 1 space is used up if displaying view of a node nested within another
+  /// node that is not the last child.
+  if (!isRoot && prefix.endsWith(separator)) {
+    indentSize -= 1;
+  }
+
+  final indent = _space(indentSize);
   final branch = _branch(charset, isLastChild: isLastChild);
 
-  final nodeAsString = '$spacing$branch $printableValue$lineBreak';
+  prefix += indent;
+
+  final nodeAsString = '$prefix$branch $printableValue$lineBreak';
   buffer.write(nodeAsString);
 
   if (isLeaf) return;
-
-  /// Next indent inclusive of branch character both ascii and utf occupy
-  /// 3 char spaces and the first character of the parent
-  final nextIndentLevel = ++indentLevel;
+  
   final lastIndex = children.length - 1;
 
   for (final (index, child) in children.indexed) {
     _nodeView(
       buffer,
       child,
-      indentLevel: nextIndentLevel,
-      spaceFromEdge: spaceFromEdge,
-      defaultIndent: defaultIndent,
+      isRoot: false,
+      prefix: isLastChild ? prefix : '$prefix$separator',
+      separator: separator,
       charset: charset,
       isLastChild: index == lastIndex,
       lineBreak: lineBreak,
