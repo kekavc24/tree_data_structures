@@ -235,44 +235,47 @@ class CheekyAvlTree<T> implements PrintableTree {
 
     // Prefer left when deleting
     if (left != null) {
-      // Get largest on left
-      replacement = _deepest(left, checkLeft: false);
+      replacement = _deepest(left, checkLeft: false); // Largest on left
+      _stealParentAndDeScope(node, replacement, searchFunc);
+      replacement.right = right;
+
+      if (right != null) right.parent = replacement;
+
+      final rplLeft = replacement.left;
 
       /// Give the current [replacement]'s left child to node on [left] if
       /// we found a node greater than [left] in the subtree.
-      if (!replacement.isLeaf &&
-          comparator(left.value, replacement.value) != 0) {
-        final temp = replacement.left;
+      if (rplLeft != null && comparator(replacement.value, left.value) != 0) {
         replacement.left = left;
-
-        _addNode(left, temp!);
+        _addNode(left, rplLeft);
       }
-      replacement.right = right;
-      if (right != null) right.parent = replacement;
     } else if (right != null) {
-      replacement = _deepest(right, checkLeft: true);
+      replacement = _deepest(right, checkLeft: true); // Smallest on right
+      _stealParentAndDeScope(node, replacement, searchFunc);
+      replacement.left = left;
+
+      if (left != null) left.parent = replacement;
+
+      final rplRight = replacement.right;
 
       /// Give the current [replacement]'s left child to node on [right] if
       /// we found a node lesser than [right] in the subtree.
-      if (!replacement.isLeaf &&
-          comparator(right.value, replacement.value) != 0) {
-        final temp = replacement.right;
+      if (rplRight != null && comparator(replacement.value, right.value) != 0) {
         replacement.right = right;
-
-        _addNode(right, temp!);
+        _addNode(right, rplRight);
       }
-      replacement.left = left;
-      if (left != null) left.parent = replacement;
     }
 
+    final hasParent = parent != null;
+
     if (replacement != null) {
-      _swapParent(node, replacement);
       _rebalance(replacement);
-    } else if (parent != null) {
+    } else if (hasParent) {
+      // In case replacement is null, we mark parent as null
       _markNullInParent(node, parent, searchFunc);
     }
 
-    if (parent != null) _rebalance(parent);
+    if (hasParent) _rebalance(parent);
     _count--;
     return true;
   }
@@ -468,6 +471,31 @@ class CheekyAvlTree<T> implements PrintableTree {
     } else {
       tempParent.left = receiver;
     }
+  }
+
+  void _stealParentAndDeScope(
+    _AvlNode<T> donor,
+    _AvlNode<T> thief,
+    BinaryCompare<T, T> compareFunc,
+  ) {
+    final stolenParent = donor.parent;
+
+    thief.parent = stolenParent;
+
+    if (stolenParent == null) {
+      _root = thief;
+      return;
+    }
+
+    if (compareFunc(thief.value, stolenParent.value) > 0) {
+      stolenParent.right = thief;
+    } else {
+      stolenParent.left = thief;
+    }
+
+    donor.parent = null;
+    donor.left = null;
+    donor.right = null;
   }
 
   /// Marks the position of [node] `null` only if the [parent] is not `null`.
