@@ -13,7 +13,7 @@ typedef UnaryCompare<T> = int Function(T value);
 typedef Predicate<T> = bool Function(T value);
 
 /// Depth first tranversal techniques
-enum DepthTransversal {
+enum Transversal {
   /// Visits root -> left -> right
   preOrder,
 
@@ -22,7 +22,10 @@ enum DepthTransversal {
   inOrder,
 
   /// Visits left -> right -> root
-  postOrder
+  postOrder,
+
+  /// Visits all nodes at a level before proceeding
+  breadthFirst,
 }
 
 /// A basic implementation of an `AVL Tree` which is a self-balancing binary
@@ -157,15 +160,15 @@ class CheekyAvlTree<T> implements PrintableTree {
     );
   }
 
-  /// Returns a [List] of elements based on the [DepthTransversal] order
+  /// Returns a [List] of elements based on the [Transversal] order
   /// specified.
   ///
   /// If a [filter] is provided, only elements that evaluate to `true` are
   /// returned.
-  List<T> ordered([
-    DepthTransversal transversal = DepthTransversal.inOrder,
+  List<T> ordered({
+    Transversal transversal = Transversal.inOrder,
     Predicate<T>? filter,
-  ]) {
+  }) {
     final ordered = <T>[];
 
     if (_root == null) return ordered;
@@ -173,9 +176,10 @@ class CheekyAvlTree<T> implements PrintableTree {
     final predicate = filter ?? (T value) => true;
 
     final _ = switch (transversal) {
-      DepthTransversal.preOrder => _preOrder(ordered, _root!, predicate),
-      DepthTransversal.postOrder => _postOrder(ordered, _root!, predicate),
-      _ => _inOrder(ordered, _root!, predicate)
+      Transversal.preOrder => _preOrder(ordered, _root!, predicate),
+      Transversal.postOrder => _postOrder(ordered, _root!, predicate),
+      Transversal.inOrder => _inOrder(ordered, _root!, predicate),
+      Transversal.breadthFirst => _breadthFirst(ordered, [_root!], predicate),
     };
 
     return ordered;
@@ -534,7 +538,7 @@ _AvlNode<T>? _search<T>(
   return null; // No match & this node has no children
 }
 
-/// Visits the nodes via [DepthTransversal.inOrder]
+/// Visits the nodes via [Transversal.inOrder]
 void _inOrder<T>(
   List<T> accumulator,
   _AvlNode<T> parent,
@@ -553,7 +557,7 @@ void _inOrder<T>(
   }
 }
 
-/// Visits the nodes via [DepthTransversal.preOrder]
+/// Visits the nodes via [Transversal.preOrder]
 void _preOrder<T>(
   List<T> accumulator,
   _AvlNode<T> parent,
@@ -572,7 +576,7 @@ void _preOrder<T>(
   }
 }
 
-/// Visits the nodes via [DepthTransversal.postOrder]
+/// Visits the nodes via [Transversal.postOrder]
 void _postOrder<T>(
   List<T> accumulator,
   _AvlNode<T> parent,
@@ -589,4 +593,21 @@ void _postOrder<T>(
   }
 
   if (filter(value)) accumulator.add(value);
+}
+
+/// Visits the node via [Transversal.breadthFirst]
+void _breadthFirst<T>(
+  List<T> accumulator,
+  List<_AvlNode<T>> queue,
+  Predicate<T> filter,
+) {
+  final breadthQueue = List.from(queue);
+
+  while (breadthQueue.isNotEmpty) {
+    final _AvlNode<T>(:value, :left, :right) = breadthQueue.removeAt(0);
+    if (filter(value)) accumulator.add(value);
+
+    if (left != null) breadthQueue.add(left);
+    if (right != null) breadthQueue.add(right);
+  }
 }
