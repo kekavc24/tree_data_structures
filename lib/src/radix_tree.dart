@@ -100,13 +100,13 @@ class RadixTree implements PrintableTree {
   /// if the [string] already exists or [string] is empty.
   ///
   /// Returns a
-  Iterable<String> insert(String string) {
+  Iterable<String>? insert(String string, {bool returnPathOnInsert = false}) {
     final value = string.trim();
     if (value.isEmpty) return [];
 
     final key = value[0];
 
-    Iterable<String> path;
+    Iterable<String>? path;
 
     if (_nodes.containsKey(key)) {
       final head = _nodes[key]!;
@@ -115,12 +115,12 @@ class RadixTree implements PrintableTree {
 
       // Incase it's not the head anymore
       _nodes[key] = _getParentAtRoot(nodePath.first);
-
-      path = nodePath.map((node) => node.value);
+      
+      if (returnPathOnInsert) path = nodePath.map((node) => node.value);
     } else {
       final root = _RadixTreeNode(value, null);
       _nodes[key] = root;
-      path = [root.value];
+      if (returnPathOnInsert) path = [root.value];
     }
 
     return path;
