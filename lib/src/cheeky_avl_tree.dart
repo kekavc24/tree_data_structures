@@ -398,8 +398,8 @@ class CheekyAvlTree<T> implements PrintableTree {
     left.right = node;
 
     // The rotated node will become this node's parent
-    if (temp != null) _swapParent(left, temp);
-    _swapParent(node, left);
+    if (temp != null) _updateParent(node: left, updatedParent: temp);
+    _updateParent(node: node, updatedParent: left);
   }
 
   /// Rotates the child on the right and places it at its parent's position
@@ -448,28 +448,31 @@ class CheekyAvlTree<T> implements PrintableTree {
     node.right = temp;
 
     // The rotated node will become this node's parent
-    if (temp != null) _swapParent(right, temp);
-    _swapParent(node, right);
+    if (temp != null) _updateParent(node: right, updatedParent: temp);
+    _updateParent(node: node, updatedParent: right);
   }
 
   /// Swaps the parent of two nodes.
   ///
   /// If the [donor] node has no parent, the [receiver] is made the root node.
-  void _swapParent(_AvlNode<T> donor, _AvlNode<T> receiver) {
-    final tempParent = donor.parent;
+  void _updateParent({
+    required _AvlNode<T> node,
+    required _AvlNode<T> updatedParent,
+  }) {
+    final tempParent = node.parent;
 
-    donor.parent = receiver;
-    receiver.parent = tempParent;
+    node.parent = updatedParent;
+    updatedParent.parent = tempParent;
 
     if (tempParent == null) {
-      _root = receiver;
+      _root = updatedParent;
       return;
     }
 
-    if (comparator(tempParent.value, receiver.value) < 0) {
-      tempParent.right = receiver;
+    if (comparator(tempParent.value, updatedParent.value) < 0) {
+      tempParent.right = updatedParent;
     } else {
-      tempParent.left = receiver;
+      tempParent.left = updatedParent;
     }
   }
 
