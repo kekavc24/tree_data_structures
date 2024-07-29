@@ -2,8 +2,8 @@ import 'dart:collection';
 import 'dart:math';
 
 import 'package:tree_data_structures/src/cheeky_avl_tree.dart';
+import 'package:tree_data_structures/src/printable_tree.dart';
 import 'package:tree_data_structures/src/utils.dart';
-
 
 /// Indicates the nature of search query's existence
 enum ResultExistence {
@@ -75,7 +75,7 @@ RadixTreeResult _fromSearchResult(_SearchResult result) => (
 /// store children in a [CheekyAvlTree].
 ///
 /// See: https://en.wikipedia.org/wiki/Radix_tree
-class RadixTree {
+class RadixTree implements PrintableTree {
   /// Stores the root [_RadixTreeNode] for each alphabetical letter in the
   /// `Latin Alphabet` for guaranteed access in `O(1)`.
   ///
@@ -84,6 +84,15 @@ class RadixTree {
 
   /// Removes all stored.
   void clear() => _nodes.clear();
+
+  @override
+  bool get isEmpty => _nodes.isEmpty;
+
+  @override
+  List<PrintableNode> get rootNodes => _nodes.values.toList();
+
+  @override
+  String get name => 'RadixTree';
 
   /// Inserts a [string] into the tree.
   ///
@@ -449,7 +458,7 @@ class RadixTree {
 }
 
 /// Represents a node within [RadixTree]
-class _RadixTreeNode {
+class _RadixTreeNode implements PrintableNode {
   _RadixTreeNode(this.value, this.parent);
 
   /// Represents the direct parent of this node
@@ -466,10 +475,17 @@ class _RadixTreeNode {
 
   bool get isRoot => parent == null;
 
+  @override
   bool get isLeaf => tree.length == 0;
 
   @override
   String toString() => value;
+
+  @override
+  List<PrintableNode> get children => tree.ordered();
+
+  @override
+  String get printableValue => value;
 }
 
 /// Recursively looks for [_RadixTreeNode] at the root with no parent
