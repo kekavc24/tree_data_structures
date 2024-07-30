@@ -341,9 +341,15 @@ class RadixTree implements PrintableTree {
     ///            \
     ///            ''
     ///
-    /// This means we are mutating the current node. Since we are using an
-    /// Avl Tree rather than a list, we need to remove it first from the
-    /// parent so that we don't lose it once mutated.
+    /// Additionally, the last similarity during the [_search] may be less
+    /// than actual value stored at this node. This means the current node
+    /// has to be split such that:
+    ///
+    /// Adding "sunny" in a tree with "summer", we get:
+    ///
+    ///         su - mmer
+    ///          \
+    ///          nny
     if (isSubstring || lastSimilarity < value.length) {
       final hasValues = path.isNotEmpty;
 
@@ -387,7 +393,9 @@ class RadixTree implements PrintableTree {
         ..value = value.safeSubstring(rootChunk.length)
         ..parent = root;
 
-      // Add node that triggered the chunking
+      /// Normally the last similarity will suffice for normal insertions
+      /// but in case we found a massively split node, fallback to the
+      /// next possible index.
       final inserted = _RadixTreeNode(
         toInsert.safeSubstring(max(lastSimilarity, nextPosition)),
         root,
@@ -424,7 +432,7 @@ class RadixTree implements PrintableTree {
       tree.insert(inserted);
       nodesToAddToPath.add(inserted);
 
-      /// If this tree was a lead node, add an empty node to ensure we don't
+      /// If this tree was a leaf node, add an empty node to ensure we don't
       /// lose an existing word such that:
       ///
       /// Adding "summer" in a tree with "sum" results in:
