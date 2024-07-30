@@ -115,7 +115,7 @@ class RadixTree implements PrintableTree {
 
       // Incase it's not the head anymore
       _nodes[key] = _getParentAtRoot(nodePath.first);
-      
+
       if (returnPathOnInsert) path = nodePath.map((node) => node.value);
     } else {
       final root = _RadixTreeNode(value, null);
@@ -326,24 +326,6 @@ class RadixTree implements PrintableTree {
       // Check for an empty node
       final empty = tree.firstWhere((child) => ''.compareTo(child.value));
       if (empty != null) return path..add(empty);
-    }
-
-    /// Insert an empty node into the tree if our string ended at the node
-    /// and it wasn't a substring such that:
-    ///
-    /// If the word is "work" and our tree has "worker" and "worked", we get:
-    ///
-    ///                er
-    ///              /
-    ///            work - ed
-    ///             \
-    ///             ""
-    ///
-    /// Now the node can generate all three words!
-    if (nextPosition >= toInsert.length && !isSubstring) {
-      final empty = _RadixTreeNode('', target);
-      tree.insert(empty);
-      return path..add(empty);
     }
 
     path.removeLast(); // We have it as the target
