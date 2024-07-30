@@ -79,8 +79,12 @@ class RadixTree implements PrintableTree {
   /// We don't care about the order of storage.
   final HashMap<String, _RadixTreeNode> _nodes = HashMap();
 
+  int _wordCount = 0;
+
   /// Removes all stored.
   void clear() => _nodes.clear();
+
+  int get wordCount => _wordCount;
 
   @override
   bool get isEmpty => _nodes.isEmpty;
@@ -120,6 +124,7 @@ class RadixTree implements PrintableTree {
       if (returnPathOnInsert) path = [root.value];
     }
 
+    ++_wordCount;
     return path;
   }
 
