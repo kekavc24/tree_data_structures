@@ -48,11 +48,8 @@ typedef RadixTreeResult = ({
   /// See [ResultExistence].
   ResultExistence existence,
 
-  /// Indicates the word formed if:
-  ///   1. The entire word was found - [ResultExistence.exists]
-  ///   2. A portion of the word was found - [ResultExistence.canExist]
-  ///   3. The entire word was found but as substring of the last word
-  ///       - [ResultExistence.exists]
+  /// Indicates the word where the entire prefix was found or a portion of it
+  /// terminates
   String word,
 
   /// Indicates the number of characters that are similar to the last searched
@@ -140,7 +137,7 @@ class RadixTree implements PrintableTree {
   /// Returns a record with information about the `similarity` before the
   /// search terminated, the next expected index of the cursor on the word
   /// and the word (or a portion of it) where this [prefix] was found.
-  RadixTreeResult search(String prefix, [ResultExistence? insertOn]) {
+  RadixTreeResult search(String prefix, {ResultExistence? insertOn}) {
     final needle = prefix.trim();
 
     if (needle.isEmpty) {
@@ -161,7 +158,9 @@ class RadixTree implements PrintableTree {
         // Insert at root
         _nodes[key] = _RadixTreeNode(prefix, null);
       } else {
-        _add(nextPosition - similarity, path.last, prefix);
+        _nodes[key] = _getParentAtRoot(
+          _add(nextPosition - similarity, path.last, prefix).first,
+        );
       }
     }
 
