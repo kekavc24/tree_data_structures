@@ -235,62 +235,121 @@ class CheekyAvlTree<T> implements PrintableTree {
 
     _AvlNode<T>? replacement;
 
-    // Prefer left when deleting
+    // // Prefer left when deleting
     if (left != null) {
-      replacement = _deepest(left, checkLeft: false); // Largest on left
-      _stealParentAndDeScope(node, replacement, searchFunc);
-      replacement.right = right;
+      replacement = _extractReplacement(node, highestOnLeft: true);
 
-      if (right != null) right.parent = replacement;
-
-      final rplLeft = replacement.left;
-
-      /// Give the current [replacement]'s left child to node on [left] if
-      /// we found a node greater than [left] in the subtree.
-      if (rplLeft != null && comparator(replacement.value, left.value) != 0) {
-        replacement.left = left;
-        _addNode(left, rplLeft);
+      /// Take over the left branch only if the `replacement` is not the value
+      /// on the left. Access directly from node incase some rotations
+      /// occurred.
+      if (replacement != null &&
+          comparator(node.left!.value, replacement.value) != 0) {
+        replacement.left = node.left;
       }
     } else if (right != null) {
-      replacement = _deepest(right, checkLeft: true); // Smallest on right
-      _stealParentAndDeScope(node, replacement, searchFunc);
-      replacement.left = left;
+      replacement = _extractReplacement(node, highestOnLeft: false);
 
-      if (left != null) left.parent = replacement;
-
-      final rplRight = replacement.right;
-
-      /// Give the current [replacement]'s left child to node on [right] if
-      /// we found a node lesser than [right] in the subtree.
-      if (rplRight != null && comparator(replacement.value, right.value) != 0) {
-        replacement.right = right;
-        _addNode(right, rplRight);
+      /// Take over the right branch only if the `replacement` is not the value
+      /// on the right. Access directly from node incase some rotations
+      /// occurred.
+      if (replacement != null &&
+          comparator(node.right!.value, replacement.value) != 0) {
+        replacement.right = node.right;
       }
     }
 
     final hasParent = parent != null;
 
     if (replacement != null) {
+      _updateHeight(replacement);
+      _stealParentAndDeScope(node, replacement, searchFunc);
       _rebalance(replacement);
     } else if (hasParent) {
       // In case replacement is null, we mark parent as null
       _markNullInParent(node, parent, searchFunc);
     }
 
-    if (hasParent) _rebalance(parent);
+    if (hasParent) {
+      _updateHeight(parent);
+      _rebalance(parent);
+    }
+
     _count--;
     return true;
   }
 
-  /// Returns the deepest element on either directions of a [node].
+  /// Extracts the replacement of a deleted node from its subtree.
   ///
-  /// If [checkLeft] is `true`, the smallest element will be returned.
-  /// Otherwise, the largest element will be returned
-  _AvlNode<T> _deepest(_AvlNode<T> node, {required bool checkLeft}) {
-    final _AvlNode<T>(:left, :right) = node;
-    final nodeToCheck = checkLeft ? left : right;
-    if (nodeToCheck != null) return _deepest(nodeToCheck, checkLeft: checkLeft);
-    return node;
+  /// If [highestOnLeft] is `true`, then the largest node on the left subtree
+  /// of the [nodeToReplace] is extracted. Otherwise, the smallest node in
+  /// right subtree is extracted.
+  ///
+  /// This function ensures the `parent` node of the extracted node is
+  /// after the extraction.
+  ///
+  /// Returns `null` if the first node of either subtrees is `null`.
+  _AvlNode<T>? _extractReplacement(
+    _AvlNode<T> nodeToReplace, {
+    required bool highestOnLeft,
+  }) {
+    final start = highestOnLeft ? nodeToReplace.left : nodeToReplace.right;
+
+    /// If the starting point is null, we return null and allow the `remove`
+    /// function to update parent accordingly
+    if (start == null) return null;
+
+    var replacement = start;
+
+    // Walk the nodes iteratively
+    while (true) {
+      final _AvlNode(:left, :right) = replacement;
+
+      /// If searching on left, we need to get the highest value on the left
+      /// and lowest when searching right
+      final next = highestOnLeft ? right : left;
+
+      /// We found our value.
+      if (next == null) break;
+      replacement = next;
+    }
+
+    final _AvlNode(:left, :right, :parent) = replacement;
+
+    /// We only update the `replacement` 's parent only if the node being
+    /// removed is the parent of the replacement. Thus, we need to update
+    /// height and set one of its children in its place, in that,
+    ///   - The highest value on the left will only have a single child on the
+    ///     left or null
+    ///   - The lowest value on the right will only have a single child on the
+    ///     right or null
+    if (comparator(nodeToReplace.value, parent!.value) != 0) {
+      if (highestOnLeft) {
+        parent.right = left;
+      } else {
+        parent.left = right;
+      }
+
+      _updateHeight(parent);
+
+      /// We can safely rebalance this node without affecting the node we
+      /// are removing. Why?
+      ///
+      /// The parent is already balanced and any rotations will be isolated
+      /// within it or with its subtree.
+      _rebalance(parent);
+    }
+
+    /// Eagerly take the remaining node for value being replaced. If
+    /// "originating" from the left, give it right and vice versa.
+    if (highestOnLeft) {
+      replacement.right = nodeToReplace.right;
+    } else {
+      replacement.left = nodeToReplace.left;
+    }
+
+    /// The caller of this method, that is, [_removeNode] will/should ensure
+    /// the height is updated
+    return replacement;
   }
 
   /// Returns the first node that matches the rules of the [uComparator]
