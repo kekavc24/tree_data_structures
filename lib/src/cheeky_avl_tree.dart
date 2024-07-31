@@ -542,18 +542,18 @@ _AvlNode<T>? _search<T>(
   T needle,
   BinaryCompare<T, T> searchFunc,
 ) {
-  if (start == null) return null;
+  var valInHayStack = start;
 
-  final _AvlNode<T>(:left, :right, :value, :isLeaf) = start;
+  while (valInHayStack != null) {
+    final _AvlNode<T>(:left, :right, :value) = valInHayStack;
 
-  final comparison = searchFunc(needle, value);
-  if (comparison == 0) return start; // Found match
+    final comparison = searchFunc(needle, value);
+    if (comparison == 0) break;
 
-  if (!isLeaf) {
-    return _search(comparison < 0 ? left : right, needle, searchFunc);
+    valInHayStack = comparison < 0 ? left : right;
   }
 
-  return null; // No match & this node has no children
+  return valInHayStack;
 }
 
 /// Visits the nodes via [Transversal.inOrder]
