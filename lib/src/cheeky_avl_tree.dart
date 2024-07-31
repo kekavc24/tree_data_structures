@@ -322,7 +322,7 @@ class CheekyAvlTree<T> implements PrintableTree {
     ///     left or null
     ///   - The lowest value on the right will only have a single child on the
     ///     right or null
-    if (comparator(nodeToReplace.value, parent!.value) != 0) {
+    if (parent != null && comparator(nodeToReplace.value, parent.value) != 0) {
       if (highestOnLeft) {
         parent.right = left;
       } else {
