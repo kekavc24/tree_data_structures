@@ -216,6 +216,8 @@ class CheekyAvlTree<T> implements PrintableTree {
       child.parent = parent;
     }
 
+    _incrementHeight(parent);
+
     /// Insertion may cause the tree to be unbalanced. Attempt to rebalance if
     /// unbalanced
     _rebalance(parent);
@@ -305,30 +307,10 @@ class CheekyAvlTree<T> implements PrintableTree {
         : _matchFirst(right, uComparator);
   }
 
-  /// Checks the balance factor of a node
-  int _checkBF(_AvlNode<T>? node) {
-    if (node == null) return 0;
+  /// Increases the height of a [node] after [_addNode] is called.
+  void _incrementHeight(_AvlNode<T> node) {
     final _AvlNode<T>(:left, :right) = node;
-    final balanceFactor = _heightOfSubtree(left) - _heightOfSubtree(right);
-    return balanceFactor;
-  }
-
-  /// Calculates the height of a subtree.
-  int _heightOfSubtree(_AvlNode<T>? child) {
-    if (child == null) return 0; // Not only null, non-existent
-    final height = _height(child);
-    return height + 1; // Include edge from parent
-  }
-
-  /// Returns the longest path from a node to a child that is a leaf.
-  int _height(_AvlNode<T>? node) {
-    if (node == null) return 0;
-
-    final _AvlNode<T>(:left, :right, :isLeaf) = node;
-    if (isLeaf) return 0;
-
-    final height = max(_height(left), _height(right));
-    return height + 1;
+    node.height = max(_height(left), _height(right)) + 1;
   }
 
   /// Returns whether a node is balanced.
@@ -343,10 +325,10 @@ class CheekyAvlTree<T> implements PrintableTree {
 
   /// Rebalances a node if unbalanced.
   void _rebalance(_AvlNode<T> parent) {
-    final parentBF = _checkBF(parent);
-    if (_isBalanced(parentBF)) return;
+    final _AvlNode<T>(:balanceFactor) = parent;
+    if (_isBalanced(balanceFactor)) return;
 
-    if (parentBF > 1) {
+    if (balanceFactor > 1) {
       _rotateRight(parent);
     } else {
       _rotateLeft(parent);
@@ -382,11 +364,10 @@ class CheekyAvlTree<T> implements PrintableTree {
     /// If [ignoreRightCheck] is false, we need to check if we need to perform
     /// a `LEFT` rotation first if the BF is less than `0`, that is, `-1`.
     if (!ignoreRightCheck) {
-      final _AvlNode<T>(:left) = node;
-      final leftBF = _checkBF(left);
+      final _AvlNode<T>(:left, :balanceFactor) = node;
 
       // Means we have to perform a left rotation first
-      if (leftBF < 0) {
+      if (balanceFactor < 0) {
         _rotateLeft(left!, ignoreLeftCheck: true);
       }
     }
@@ -431,11 +412,10 @@ class CheekyAvlTree<T> implements PrintableTree {
     /// If [ignoreLeftCheck] is false, we need to check if we need to perform
     /// a `RIGHT` rotation first if the BF is greater than `0`, that is, `1`.
     if (!ignoreLeftCheck) {
-      final _AvlNode<T>(:right) = node;
-      final rightBF = _checkBF(right);
+      final _AvlNode<T>(:right, :balanceFactor) = node;
 
       // Perform right rotation first
-      if (rightBF > 0) {
+      if (balanceFactor > 0) {
         _rotateRight(right!, ignoreRightCheck: true);
       }
     }
@@ -527,6 +507,10 @@ class _AvlNode<T> implements PrintableNode {
   _AvlNode<T>? left;
   _AvlNode<T>? right;
 
+  int height = 0;
+
+  int get balanceFactor => _height(left) - _height(right);
+
   bool get isRoot => parent == null;
 
   @override
@@ -544,6 +528,9 @@ class _AvlNode<T> implements PrintableNode {
         if (right != null) right!,
       ];
 }
+
+/// Returns the height of a nullable [_AvlNode]
+int _height<T>(_AvlNode<T>? node) => node == null ? 0 : node.height;
 
 /// Searches an [CheekyAvlTree] for an [_AvlNode] where
 /// `[searchFunc(needle, value) == 0]`
