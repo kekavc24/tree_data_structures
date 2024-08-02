@@ -1,7 +1,7 @@
 import 'dart:collection';
 import 'dart:math';
 
-import 'package:tree_data_structures/src/cheeky_avl_tree.dart';
+import 'package:tree_data_structures/src/avl_tree/avl_tree.dart';
 import 'package:tree_data_structures/src/printable_tree.dart';
 import 'package:tree_data_structures/src/utils.dart';
 
@@ -69,7 +69,7 @@ RadixTreeResult _fromSearchResult(_SearchResult result) => (
     );
 
 /// A basic implementation of a `RadixTree (Compact Trie)` whose nodes
-/// store children in a [CheekyAvlTree].
+/// store children in a [AvlTree].
 ///
 /// See: https://en.wikipedia.org/wiki/Radix_tree
 class RadixTree implements PrintableTree {
@@ -382,11 +382,11 @@ class RadixTree implements PrintableTree {
 
       final hasParent = pathParent != null;
 
-      /// Our objects are mutable. Our [CheekyAvlTree] guarantees some lookup
+      /// Our objects are mutable. Our [AvlTree] guarantees some lookup
       /// optimizations and therefore we need to respect its rules.
       ///
       /// If the [existing] node is split/modified, we may lose it within the
-      /// [CheekyAvlTree] before we can remove it.
+      /// [AvlTree] before we can remove it.
       if (hasParent) pathParent.tree.remove(target);
 
       final rootChunk = value.safeSubstring(0, lastSimilarity);
@@ -461,9 +461,9 @@ class _RadixTreeNode implements PrintableNode {
   /// May represent an entire word or a substring of it.
   String value;
 
-  /// Represents an [CheekyAvlTree] that stores the children of a
+  /// Represents an [AvlTree] that stores the children of a
   /// [_RadixTreeNode] for `O(log n)` insertion, search & deletion.
-  final CheekyAvlTree<_RadixTreeNode> tree = CheekyAvlTree(
+  final AvlTree<_RadixTreeNode> tree = AvlTree(
     comparator: (thiz, that) => thiz.value.compareTo(that.value),
   );
 

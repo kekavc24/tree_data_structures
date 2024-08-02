@@ -32,10 +32,10 @@ enum Transversal {
 /// search tree but with a cheeky trick.
 ///
 /// See https://en.wikipedia.org/wiki/AVL_tree
-class CheekyAvlTree<T> implements PrintableTree {
+class AvlTree<T> implements PrintableTree {
   /// [comparator] - used to compare elements before insertion. The function
   /// is shadow definition of [Comparable].
-  CheekyAvlTree({required this.comparator});
+  AvlTree({required this.comparator});
 
   ///
   final BinaryCompare<T, T> comparator;
@@ -71,14 +71,14 @@ class CheekyAvlTree<T> implements PrintableTree {
     _count = 0;
   }
 
-  /// Swaps an [CheekyAvlTree] with another without checking the [comparator]'s
+  /// Swaps an [AvlTree] with another without checking the [comparator]'s
   /// rules thus its cheekiness.
   ///
   /// It should be noted this method only swaps the reference of the [root]
   /// and [length]. The [comparator] remains unchanged. Ensure that both
   /// this tree and the [other] tree share the same [comparator] rules before
   /// swapping.
-  void swapWith(CheekyAvlTree<T> other) {
+  void swapWith(AvlTree<T> other) {
     _root = other._root;
     _count = other._count;
   }
@@ -101,7 +101,7 @@ class CheekyAvlTree<T> implements PrintableTree {
   ///
   /// **Example**
   /// ```dart
-  /// final tree = CheekyAvlTree<int>(comparator: (a, b) => a.compareTo(b))
+  /// final tree = AvlTree<int>(comparator: (a, b) => a.compareTo(b))
   ///   ..insert(10)
   ///   ..insert(11)
   ///   ..insert(4)
@@ -581,7 +581,7 @@ class CheekyAvlTree<T> implements PrintableTree {
   }
 }
 
-/// A node within a [CheekyAvlTree].
+/// A node within a [AvlTree].
 class _AvlNode<T> implements PrintableNode {
   _AvlNode(this.value);
 
@@ -618,7 +618,7 @@ class _AvlNode<T> implements PrintableNode {
 /// Returns the height of a nullable [_AvlNode]
 int _height<T>(_AvlNode<T>? node) => node == null ? 0 : node.height;
 
-/// Searches an [CheekyAvlTree] for an [_AvlNode] where
+/// Searches an [AvlTree] for an [_AvlNode] where
 /// `[searchFunc(needle, value) == 0]`
 ///
 /// Returns a valid [_AvlNode] if found. Otherwise, `null` if not found or if

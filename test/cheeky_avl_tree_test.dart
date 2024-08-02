@@ -1,22 +1,22 @@
 import 'package:checks/checks.dart';
 import 'package:test/scaffolding.dart';
-import 'package:tree_data_structures/src/cheeky_avl_tree.dart';
+import 'package:tree_data_structures/src/avl_tree/avl_tree.dart';
 
 void main() {
-  late CheekyAvlTree<int> cheekyAvlTree;
+  late AvlTree<int> avlTree;
   final defaultInput = [1, 2, 3];
 
   setUpAll(
-    () => cheekyAvlTree = CheekyAvlTree(
+    () => avlTree = AvlTree(
       comparator: (thiz, that) => thiz.compareTo(that),
     ),
   );
 
-  tearDown(() => cheekyAvlTree.clear());
+  tearDown(() => avlTree.clear());
 
   void insertAll(List<int> values) {
     for (final value in values) {
-      cheekyAvlTree.insert(value);
+      avlTree.insert(value);
     }
   }
 
@@ -24,14 +24,14 @@ void main() {
     test('Inserts values', () {
       insertAll(defaultInput);
 
-      check(cheekyAvlTree.ordered()).deepEquals(defaultInput);
+      check(avlTree.ordered()).deepEquals(defaultInput);
     });
 
     test('Removes value', () {
       insertAll(defaultInput);
 
-      cheekyAvlTree.remove(3);
-      check(cheekyAvlTree.ordered()).deepEquals([1, 2]);
+      avlTree.remove(3);
+      check(avlTree.ordered()).deepEquals([1, 2]);
     });
 
     test('Returns first match', () {
@@ -39,7 +39,7 @@ void main() {
 
       // All values are less than or equal to 3
       check(
-        cheekyAvlTree.firstWhere((value) {
+        avlTree.firstWhere((value) {
           if (value < 3) return 0;
           return 0.compareTo(value); // Look for value less than 3
         }),
@@ -47,7 +47,7 @@ void main() {
 
       // Has no value greater than 3
       check(
-        cheekyAvlTree.firstWhere((value) {
+        avlTree.firstWhere((value) {
           if (value > 3) return 0;
           return 4.compareTo(value); // Look for value greater than 3
         }),
@@ -57,8 +57,8 @@ void main() {
     test('Contains value', () {
       insertAll(defaultInput);
 
-      check(cheekyAvlTree.contains(2)).isTrue();
-      check(cheekyAvlTree.contains(10)).isFalse();
+      check(avlTree.contains(2)).isTrue();
+      check(avlTree.contains(10)).isFalse();
     });
 
     test('Removes first match', () {
@@ -66,7 +66,7 @@ void main() {
 
       // No operation
       check(
-        cheekyAvlTree.removeFirstWhere(
+        avlTree.removeFirstWhere(
           (value) {
             if (value == 0) return 0;
             return 0.compareTo(value);
@@ -76,7 +76,7 @@ void main() {
 
       // Removes one in balanced AvlTree
       check(
-        cheekyAvlTree.removeFirstWhere(
+        avlTree.removeFirstWhere(
           (value) {
             if (value < 2) return 0;
             return 1.compareTo(value);
@@ -90,14 +90,14 @@ void main() {
     test('Depth-first inorder', () {
       insertAll(defaultInput);
 
-      check(cheekyAvlTree.ordered()).deepEquals(defaultInput);
+      check(avlTree.ordered()).deepEquals(defaultInput);
     });
 
     test('Depth-first preorder', () {
       insertAll(defaultInput);
 
       check(
-        cheekyAvlTree.ordered(transversal: Transversal.preOrder),
+        avlTree.ordered(transversal: Transversal.preOrder),
       ).deepEquals([2, 1, 3]);
     });
 
@@ -105,7 +105,7 @@ void main() {
       insertAll(defaultInput);
 
       check(
-        cheekyAvlTree.ordered(transversal: Transversal.postOrder),
+        avlTree.ordered(transversal: Transversal.postOrder),
       ).deepEquals([1, 3, 2]);
     });
 
@@ -113,7 +113,7 @@ void main() {
       insertAll(defaultInput);
 
       check(
-        cheekyAvlTree.ordered(transversal: Transversal.breadthFirst),
+        avlTree.ordered(transversal: Transversal.breadthFirst),
       ).deepEquals([2, 1, 3]);
     });
 
@@ -122,7 +122,7 @@ void main() {
 
       // Return only even
       check(
-        cheekyAvlTree.ordered(
+        avlTree.ordered(
           filter: (value) => value % 2 == 0,
         ),
       ).deepEquals([2, 8, 10]);
@@ -134,7 +134,7 @@ void main() {
       insertAll(defaultInput);
 
       check(
-        cheekyAvlTree.ordered(transversal: Transversal.preOrder),
+        avlTree.ordered(transversal: Transversal.preOrder),
       ).deepEquals([2, 1, 3]);
     });
 
@@ -142,7 +142,7 @@ void main() {
       insertAll([0, -1, -2]);
 
       check(
-        cheekyAvlTree.ordered(transversal: Transversal.preOrder),
+        avlTree.ordered(transversal: Transversal.preOrder),
       ).deepEquals([-1, -2, 0]);
     });
 
@@ -150,7 +150,7 @@ void main() {
       insertAll([5, 3, 4]);
 
       check(
-        cheekyAvlTree.ordered(transversal: Transversal.preOrder),
+        avlTree.ordered(transversal: Transversal.preOrder),
       ).deepEquals([4, 3, 5]);
     });
 
@@ -158,17 +158,17 @@ void main() {
       insertAll([5, 8, 7]);
 
       check(
-        cheekyAvlTree.ordered(transversal: Transversal.preOrder),
+        avlTree.ordered(transversal: Transversal.preOrder),
       ).deepEquals([7, 5, 8]);
     });
 
     test('when an element is deleted', () {
       insertAll([6, 4, 9, 1, 5]);
 
-      cheekyAvlTree.remove(9);
+      avlTree.remove(9);
 
       check(
-        cheekyAvlTree.ordered(transversal: Transversal.preOrder),
+        avlTree.ordered(transversal: Transversal.preOrder),
       ).deepEquals([4, 1, 6, 5]);
     });
   });
