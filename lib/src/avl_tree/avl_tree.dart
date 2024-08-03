@@ -62,8 +62,11 @@ class AvlTree<T> implements PrintableTree {
   @override
   List<PrintableNode> get rootNodes => [if (!isEmpty) _root!];
 
+  /// Updates [_root] with [node] provided
+  void _updateRoot(_AvlNode<T>? node) => _root = node;
+
   /// Removes all objects present in this tree.
-  void clear() => _root = null;
+  void clear() => _updateRoot(null);
 
   /// Swaps an [AvlTree] with another without checking the [comparator]'s
   /// rules thus its cheekiness.
@@ -72,17 +75,13 @@ class AvlTree<T> implements PrintableTree {
   /// and [length]. The [comparator] remains unchanged. Ensure that both
   /// this tree and the [other] tree share the same [comparator] rules before
   /// swapping.
-  void swapWith(AvlTree<T> other) => _root = other._root;
+  void swapWith(AvlTree<T> other) => _updateRoot(other._root);
 
   /// Adds an value to the tree
   void insert(T value) {
     final newNode = _AvlNode(value);
 
-    if (isEmpty) {
-      _root = newNode;
-      return;
-    }
-
+    if (isEmpty) return _updateRoot(newNode);
     _addNode(_root!, newNode);
   }
 
@@ -161,7 +160,7 @@ class AvlTree<T> implements PrintableTree {
   }) {
     final ordered = <T>[];
 
-    if (_root == null) return ordered;
+    if (isEmpty) return ordered;
 
     final predicate = filter ?? (T value) => true;
 
@@ -260,7 +259,7 @@ class AvlTree<T> implements PrintableTree {
     } else {
       /// This means this is the root value as it has no replacement and
       /// no parent either
-      _root = null;
+      _updateRoot(null);
     }
 
     if (hasParent) {
@@ -534,10 +533,7 @@ class AvlTree<T> implements PrintableTree {
     node.parent = updatedParent;
     updatedParent.parent = tempParent;
 
-    if (tempParent == null) {
-      _root = updatedParent;
-      return;
-    }
+    if (tempParent == null) return _updateRoot(updatedParent);
 
     if (comparator(tempParent.value, updatedParent.value) < 0) {
       tempParent.right = updatedParent;
@@ -555,10 +551,7 @@ class AvlTree<T> implements PrintableTree {
 
     thief.parent = stolenParent;
 
-    if (stolenParent == null) {
-      _root = thief;
-      return;
-    }
+    if (stolenParent == null) return _updateRoot(thief);
 
     if (compareFunc(thief.value, stolenParent.value) > 0) {
       stolenParent.right = thief;
