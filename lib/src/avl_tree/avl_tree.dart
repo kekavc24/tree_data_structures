@@ -43,15 +43,12 @@ class AvlTree<T> implements PrintableTree {
   /// Node at the root of the tree
   _AvlNode<T>? _root;
 
-  /// Count of elements
-  int _count = 0;
-
   /// Returns the value at the root of the tree. Returns null if the tree is
   /// empty.
   T? get root => _root?.value;
 
   /// Returns the number of elements in this collection.
-  int get length => _count;
+  int get length => _numOfNodes(_root);
 
   /// Returns the longest path to a leaf node.
   int get height => _height(_root);
@@ -66,10 +63,7 @@ class AvlTree<T> implements PrintableTree {
   List<PrintableNode> get rootNodes => [if (!isEmpty) _root!];
 
   /// Removes all objects present in this tree.
-  void clear() {
-    _root = null;
-    _count = 0;
-  }
+  void clear() => _root = null;
 
   /// Swaps an [AvlTree] with another without checking the [comparator]'s
   /// rules thus its cheekiness.
@@ -78,10 +72,7 @@ class AvlTree<T> implements PrintableTree {
   /// and [length]. The [comparator] remains unchanged. Ensure that both
   /// this tree and the [other] tree share the same [comparator] rules before
   /// swapping.
-  void swapWith(AvlTree<T> other) {
-    _root = other._root;
-    _count = other._count;
-  }
+  void swapWith(AvlTree<T> other) => _root = other._root;
 
   /// Adds an value to the tree
   void insert(T value) {
@@ -89,11 +80,10 @@ class AvlTree<T> implements PrintableTree {
 
     if (isEmpty) {
       _root = newNode;
-      _count++;
       return;
     }
 
-    if (_addNode(_root!, newNode)) _count++;
+    _addNode(_root!, newNode);
   }
 
   /// Returns the first element that matches the rules of the [uComparator]
@@ -274,7 +264,6 @@ class AvlTree<T> implements PrintableTree {
       _rebalance(parent);
     }
 
-    _count--;
     return true;
   }
 
@@ -373,10 +362,12 @@ class AvlTree<T> implements PrintableTree {
 
     if (isLeaf) {
       node.height = 0;
+      node.count = 1;
       return;
     }
 
     node.height = max(_height(left), _height(right)) + 1;
+    node.count = _numOfNodes(left) + _numOfNodes(right) + 1;
   }
 
   /// Checks the balance factor of a node
@@ -591,7 +582,11 @@ class _AvlNode<T> implements PrintableNode {
   _AvlNode<T>? left;
   _AvlNode<T>? right;
 
+  /// The longest path to a leaf node
   int height = 0;
+
+  /// Number of [_AvlNode] that are children of this node, including itself.
+  int count = 1; // The current leaf node
 
   bool get isRoot => parent == null;
 
@@ -617,6 +612,9 @@ class _AvlNode<T> implements PrintableNode {
 
 /// Returns the height of a nullable [_AvlNode]
 int _height<T>(_AvlNode<T>? node) => node == null ? 0 : node.height;
+
+/// Returns the count of nodes present at a nullable [_AvlNode]
+int _numOfNodes<T>(_AvlNode<T>? node) => node == null ? 0 : node.count;
 
 /// Searches an [AvlTree] for an [_AvlNode] where
 /// `[searchFunc(needle, value) == 0]`
