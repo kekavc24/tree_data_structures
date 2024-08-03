@@ -2,7 +2,7 @@
 abstract interface class PrintableTree<T> {
   /// Returns all root nodes for this tree. Ideally, this should be empty if
   /// [count] is `0`
-  List<PrintableNode<T>> get rootNodes;
+  Iterable<PrintableNode<T>> get rootNodes;
 
   /// Checks whether this tree has any [PrintableNode]s.
   bool get isEmpty;
@@ -21,7 +21,7 @@ abstract interface class PrintableNode<T> {
 
   /// Returns the children of this node. Ideally, this should be empty if
   /// [isLeaf] is `true`
-  List<PrintableNode<T>> get children;
+  Iterable<PrintableNode<T>> get children;
 }
 
 /// Represent the desire character set to use. Implicit ascii or rendered utf
@@ -118,7 +118,7 @@ void _nodeView(
   buffer.write(nodeAsString);
 
   if (isLeaf) return;
-  
+
   final lastIndex = children.length - 1;
 
   for (final (index, child) in children.indexed) {

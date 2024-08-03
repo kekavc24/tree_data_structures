@@ -476,7 +476,7 @@ class _RadixTreeNode implements PrintableNode {
   String toString() => value;
 
   @override
-  List<PrintableNode> get children => tree.ordered();
+  Set<PrintableNode> get children => tree.ordered();
 
   @override
   String get printableValue => value;

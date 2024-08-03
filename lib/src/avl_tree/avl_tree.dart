@@ -154,11 +154,11 @@ class AvlTree<T> implements PrintableTree {
   ///
   /// If a [filter] is provided, only elements that evaluate to `true` are
   /// returned.
-  List<T> ordered({
+  Set<T> ordered({
     Transversal transversal = Transversal.inOrder,
     Predicate<T>? filter,
   }) {
-    final ordered = <T>[];
+    final ordered = <T>{};
 
     if (isEmpty) return ordered;
 
@@ -650,7 +650,7 @@ _AvlNode<T>? _search<T>(
 
 /// Visits the nodes via [Transversal.inOrder]
 void _inOrder<T>(
-  List<T> accumulator,
+  Set<T> accumulator,
   _AvlNode<T> parent,
   Predicate<T> filter,
 ) {
@@ -669,7 +669,7 @@ void _inOrder<T>(
 
 /// Visits the nodes via [Transversal.preOrder]
 void _preOrder<T>(
-  List<T> accumulator,
+  Set<T> accumulator,
   _AvlNode<T> parent,
   Predicate<T> filter,
 ) {
@@ -688,7 +688,7 @@ void _preOrder<T>(
 
 /// Visits the nodes via [Transversal.postOrder]
 void _postOrder<T>(
-  List<T> accumulator,
+  Set<T> accumulator,
   _AvlNode<T> parent,
   Predicate<T> filter,
 ) {
@@ -707,7 +707,7 @@ void _postOrder<T>(
 
 /// Visits the node via [Transversal.breadthFirst]
 void _breadthFirst<T>(
-  List<T> accumulator,
+  Set<T> accumulator,
   List<_AvlNode<T>> queue,
   Predicate<T> filter,
 ) {
