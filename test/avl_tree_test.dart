@@ -27,6 +27,13 @@ void main() {
       check(avlTree.ordered()).deepEquals(defaultInput);
     });
 
+    test('Removes only value in tree', () {
+      insertAll([1]);
+
+      avlTree.remove(1);
+      check(avlTree.isEmpty).isTrue();
+    });
+
     test('Removes value', () {
       insertAll(defaultInput);
 
