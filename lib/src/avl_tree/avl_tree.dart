@@ -288,6 +288,7 @@ class AvlTree<T> implements PrintableTree {
     if (start == null) return null;
 
     var replacement = start;
+    final nodesToUpdateHeight = <_AvlNode<T>>[];
 
     // Walk the nodes iteratively
     while (true) {
@@ -299,6 +300,7 @@ class AvlTree<T> implements PrintableTree {
 
       /// We found our value.
       if (next == null) break;
+      nodesToUpdateHeight.add(replacement);
       replacement = next;
     }
 
@@ -318,6 +320,10 @@ class AvlTree<T> implements PrintableTree {
         parent.left = right;
       }
 
+      /// We update the parent's height first to immediately tee it up for
+      /// any rebalancing we may need to do and remove it for any balancing
+      /// that may be required of us
+      nodesToUpdateHeight.removeLast();
       _updateHeight(parent);
 
       /// We can safely rebalance this node without affecting the node we
@@ -326,6 +332,13 @@ class AvlTree<T> implements PrintableTree {
       /// The parent is already balanced and any rotations will be isolated
       /// within it or with its subtree.
       _rebalance(parent);
+
+      /// After a successful rebalancing if any, update all heights of the
+      /// remaining nodes. We update from last to top. Similar to updating
+      /// height along the way as we bubble up our replacement.
+      while (nodesToUpdateHeight.isNotEmpty) {
+        _updateHeight(nodesToUpdateHeight.removeLast());
+      }
     }
 
     /// Eagerly take the remaining node for value being replaced. If
@@ -451,7 +464,6 @@ class AvlTree<T> implements PrintableTree {
 
     _updateHeight(node);
     _updateHeight(left);
-    _updateHeight(left.parent);
   }
 
   /// Rotates the child on the right and places it at its parent's position
@@ -504,7 +516,6 @@ class AvlTree<T> implements PrintableTree {
 
     _updateHeight(node);
     _updateHeight(right);
-    _updateHeight(right.parent); // Parent of rotated node
   }
 
   /// Swaps the parent of two nodes.
