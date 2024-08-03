@@ -255,8 +255,12 @@ class AvlTree<T> implements PrintableTree {
       _stealParentAndDeScope(node, replacement, searchFunc);
       _rebalance(replacement);
     } else if (hasParent) {
-      // In case replacement is null, we mark parent as null
+      // In case replacement is null, we mark the branch in parent as null
       _markNullInParent(node, parent, searchFunc);
+    } else {
+      /// This means this is the root value as it has no replacement and
+      /// no parent either
+      _root = null;
     }
 
     if (hasParent) {
