@@ -74,7 +74,14 @@ class AvlTree<T> implements PrintableTree {
   List<PrintableNode> get rootNodes => [if (!isEmpty) _root!];
 
   /// Updates [_root] with [node] provided
-  void _updateRoot(_AvlNode<T>? node) => _root = node;
+  void _updateRoot(_AvlNode<T>? node) {
+    if (node == null) {
+      _lowest = null;
+      _highest = null;
+    }
+
+    _root = node;
+  }
 
   /// Updates the [_lowest] and/or [_highest] values in the tree
   void _updateHighLow(T value) {
@@ -94,6 +101,14 @@ class AvlTree<T> implements PrintableTree {
     }
   }
 
+  void _overwriteLowHigh(T old, T potential) {
+    if (comparator(old, _lowest as T) == 0) {
+      _lowest = potential;
+    } else if (comparator(old, _highest as T) == 0) {
+      _highest = potential;
+    }
+  }
+
   /// Removes all objects present in this tree.
   void clear() => _updateRoot(null);
 
@@ -110,8 +125,15 @@ class AvlTree<T> implements PrintableTree {
   void insert(T value) {
     final newNode = _AvlNode(value);
 
-    if (isEmpty) return _updateRoot(newNode);
-    if (_addNode(_root!, newNode)) _updateHighLow(value);
+    var didAdd = true;
+
+    if (isEmpty) {
+      _updateRoot(newNode);
+    } else {
+      didAdd = _addNode(_root!, newNode);
+    }
+
+    if (didAdd) _updateHighLow(value);
   }
 
   /// Returns the first element that matches the rules of the [uComparator]
@@ -264,7 +286,7 @@ class AvlTree<T> implements PrintableTree {
   bool _removeNode(_AvlNode<T>? node, BinaryCompare<T, T> searchFunc) {
     if (node == null) return false;
 
-    final _AvlNode<T>(:parent, :left, :right) = node;
+    final _AvlNode<T>(:parent, :left, :right, :value) = node;
 
     _AvlNode<T>? replacement;
 
@@ -307,6 +329,7 @@ class AvlTree<T> implements PrintableTree {
     }
 
     if (hasParent) {
+      _overwriteLowHigh(value, parent.value);
       _updateHeight(parent);
       _rebalance(parent, comparator: comparator, updateRoot: _updateRoot);
     }
