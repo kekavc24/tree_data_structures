@@ -1,5 +1,22 @@
 part of 'avl_tree.dart';
 
+final class JoinError extends Error {
+  JoinError(this.key, this.lowerBound, this.upperBound);
+
+  final String key;
+
+  final String lowerBound;
+
+  final String upperBound;
+
+  @override
+  String toString() {
+    return 'Cannot join 2 overlapping trees.'
+        'The key "$key" must be greater than "$lowerBound" and lower than'
+        ' "$upperBound" based on the comparator provided';
+  }
+}
+
 /// Performs a `join` operation on 2 sorted trees (sets), that is `AvlTree`s
 /// [lower] and [upper].
 ///
@@ -38,9 +55,10 @@ AvlTree<T> joinTrees<T>(AvlTree<T> lower, T key, AvlTree<T> upper) {
   /// [upper] must be greater than [key]
   if (!isWithinBound(lBound, checkLowerBound: true) &&
       !isWithinBound(uBound, checkLowerBound: false)) {
-    throw AssertionError(
-      'Cannot join 2 overlapping trees.'
-      'The key "$key" must be greater than $lBound and lower than $uBound',
+    throw JoinError(
+      key.toString(),
+      lBound?.toString() ?? '',
+      uBound?.toString() ?? '',
     );
   }
 

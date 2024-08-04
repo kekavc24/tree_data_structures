@@ -14,9 +14,9 @@ void main() {
 
   tearDown(() => avlTree.clear());
 
-  void insertAll(List<int> values) {
+  void insertAll(List<int> values, [AvlTree? tree]) {
     for (final value in values) {
-      avlTree.insert(value);
+      (tree ?? avlTree).insert(value);
     }
   }
 
@@ -39,6 +39,7 @@ void main() {
 
       avlTree.remove(3);
       check(avlTree.ordered()).deepEquals([1, 2]);
+      check(avlTree.highest).isNotNull().equals(2);
     });
 
     test('Returns first match', () {
@@ -177,6 +178,115 @@ void main() {
       check(
         avlTree.ordered(transversal: Transversal.preOrder),
       ).deepEquals([4, 1, 6, 5]);
+    });
+  });
+
+  group('Join', () {
+    final joinTree = AvlTree<int>.empty(
+      comparator: (thiz, that) => thiz.compareTo(that),
+    );
+
+    tearDown(() => joinTree.clear());
+
+    test('Two empty trees at root', () {
+      final joined = joinTrees(avlTree, 0, joinTree);
+
+      check(joined.length).equals(1);
+      check(joined.root).equals(0);
+      check(joined.ordered()).deepEquals({0});
+    });
+
+    test('adds right node to right subtree of left node and rotates', () {
+      insertAll([6, 4, 9, 8, 12]);
+      insertAll([16], joinTree);
+
+      final joined = joinTrees(avlTree, 15, joinTree);
+
+      check(
+        joined.ordered(transversal: Transversal.preOrder),
+      ).deepEquals(
+        {9, 6, 4, 8, 15, 12, 16},
+      );
+    });
+
+    test('adds right node to right subtree of left node with no rotations', () {
+      insertAll([6, 4, 2, 9]);
+      insertAll([16], joinTree);
+
+      final joined = joinTrees(avlTree, 15, joinTree);
+
+      check(
+        joined.ordered(transversal: Transversal.preOrder),
+      ).deepEquals(
+        {6, 4, 2, 15, 9, 16},
+      );
+    });
+
+    test('adds right node to right subtree of left node after search', () {
+      insertAll([6, 4, 9, 2, 8, 12, 7]);
+      insertAll([16], joinTree);
+
+      final joined = joinTrees(avlTree, 15, joinTree);
+
+      check(
+        joined.ordered(transversal: Transversal.preOrder),
+      ).deepEquals(
+        {6, 4, 2, 9, 8, 7, 15, 12, 16},
+      );
+    });
+
+    test('adds left node to left subtree of right node with no rotations', () {
+      insertAll([6]);
+      insertAll([12, 10, 15, 14, 18], joinTree);
+
+      final joined = joinTrees(avlTree, 7, joinTree);
+
+      check(
+        joined.ordered(transversal: Transversal.preOrder),
+      ).deepEquals(
+        {12, 7, 6, 10, 15, 14, 18},
+      );
+    });
+
+    test('adds left node to left subtree of right node and rotates', () {
+      insertAll([6]);
+      insertAll([12, 10, 15, 9], joinTree);
+
+      final joined = joinTrees(avlTree, 7, joinTree);
+
+      check(
+        joined.ordered(transversal: Transversal.preOrder),
+      ).deepEquals(
+        {9, 7, 6, 12, 10, 15},
+      );
+    });
+
+    test('adds left node to left subtree of right node after search', () {
+      insertAll([2]);
+      insertAll([12, 10, 15, 8, 17, 11, 9], joinTree);
+
+      final joined = joinTrees(avlTree, 3, joinTree);
+
+      check(
+        joined.ordered(transversal: Transversal.preOrder),
+      ).deepEquals(
+        {12, 8, 3, 2, 10, 9, 11, 15, 17},
+      );
+    });
+
+    test('throws a join error when values overlap', () {
+      insertAll([2, 10]);
+      insertAll([7], joinTree);
+
+      check(() => joinTrees(avlTree, 8, joinTree)).throws<JoinError>()
+        ..has((erro) => erro.key, 'key').equals('8')
+        ..has((err) => err.lowerBound, 'lowerbound').equals('10')
+        ..has((err) => err.upperBound, 'upperbound').equals('7')
+        ..has((err) => err.toString(), 'toString').equals(
+          'Cannot join 2 overlapping trees.'
+          'The key "8" must be greater than "10" and lower than'
+          ' "7" based on the comparator provided',
+        );
     });
   });
 }
