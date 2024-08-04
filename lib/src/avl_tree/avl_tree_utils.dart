@@ -363,3 +363,18 @@ void _updateParent<T>({
     tempParent.left = updatedParent;
   }
 }
+
+/// Returns the parent of the [node] at the root (a node with no parent) or
+/// [node] if it is the root value.
+_AvlNode<T> _nodeAtRoot<T>(_AvlNode<T> node) {
+  var current = node;
+
+  while (true) {
+    final _AvlNode<T>(:parent) = current;
+    if (parent == null) break;
+
+    current = parent;
+  }
+
+  return current;
+}
