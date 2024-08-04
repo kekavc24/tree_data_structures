@@ -463,7 +463,7 @@ class _RadixTreeNode implements PrintableNode {
 
   /// Represents an [AvlTree] that stores the children of a
   /// [_RadixTreeNode] for `O(log n)` insertion, search & deletion.
-  final AvlTree<_RadixTreeNode> tree = AvlTree(
+  final AvlTree<_RadixTreeNode> tree = AvlTree.empty(
     comparator: (thiz, that) => thiz.value.compareTo(that.value),
   );
 

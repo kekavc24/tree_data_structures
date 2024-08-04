@@ -7,7 +7,7 @@ void main() {
   final defaultInput = [1, 2, 3];
 
   setUpAll(
-    () => avlTree = AvlTree(
+    () => avlTree = AvlTree.empty(
       comparator: (thiz, that) => thiz.compareTo(that),
     ),
   );
