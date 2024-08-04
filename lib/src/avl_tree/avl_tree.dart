@@ -3,15 +3,40 @@ import 'dart:math';
 import 'package:tree_data_structures/src/printable_tree.dart';
 
 part 'avl_tree_utils.dart';
+part 'join_avl_trees.dart';
 
 /// A basic implementation of an `AVL Tree` which is a self-balancing binary
 /// search tree but with a cheeky trick.
 ///
 /// See https://en.wikipedia.org/wiki/AVL_tree
 class AvlTree<T> implements PrintableTree {
+  AvlTree._(this._root, this.comparator) {
+    if (_root == null) return;
+    _updateHighLow(_root!.value);
+  }
+
   /// [comparator] - used to compare elements before insertion. The function
   /// is shadow definition of [Comparable].
-  AvlTree({required this.comparator});
+  AvlTree.empty({
+    required BinaryCompare<T, T> comparator,
+  }) : this._(null, comparator);
+
+  factory AvlTree.of(
+    T root, {
+    required BinaryCompare<T, T> comparator,
+    required Iterable<T> children,
+  }) {
+    final tree = AvlTree._(
+      _AvlNode.of(root, left: null, right: null),
+      comparator,
+    );
+
+    for (final value in children) {
+      tree.insert(value);
+    }
+
+    return tree;
+  }
 
   ///
   final BinaryCompare<T, T> comparator;
@@ -19,9 +44,19 @@ class AvlTree<T> implements PrintableTree {
   /// Node at the root of the tree
   _AvlNode<T>? _root;
 
+  T? _lowest;
+
+  T? _highest;
+
   /// Returns the value at the root of the tree. Returns null if the tree is
   /// empty.
   T? get root => _root?.value;
+
+  /// Returns the smallest value in the tree
+  T? get lowest => _lowest;
+
+  /// Returns the largest value in the tree
+  T? get highest => _highest;
 
   /// Returns the number of elements in this collection.
   int get length => _numOfNodes(_root);
@@ -41,6 +76,24 @@ class AvlTree<T> implements PrintableTree {
   /// Updates [_root] with [node] provided
   void _updateRoot(_AvlNode<T>? node) => _root = node;
 
+  /// Updates the [_lowest] and/or [_highest] values in the tree
+  void _updateHighLow(T value) {
+    if (_lowest == null && _highest == null) {
+      _lowest = value;
+      _highest = value;
+      return;
+    }
+
+    if (comparator(value, _lowest as T) < 0) {
+      _lowest = value;
+      return;
+    }
+
+    if (comparator(value, _highest as T) > 0) {
+      _highest = value;
+    }
+  }
+
   /// Removes all objects present in this tree.
   void clear() => _updateRoot(null);
 
@@ -58,7 +111,7 @@ class AvlTree<T> implements PrintableTree {
     final newNode = _AvlNode(value);
 
     if (isEmpty) return _updateRoot(newNode);
-    _addNode(_root!, newNode);
+    if (_addNode(_root!, newNode)) _updateHighLow(value);
   }
 
   /// Returns the first element that matches the rules of the [uComparator]
@@ -168,6 +221,8 @@ class AvlTree<T> implements PrintableTree {
 
     if (comparison == 0) return false; // No duplicates
 
+    var didAdd = true;
+
     // Add to the left of tree
     if (comparison < 0) {
       if (left == null) {
@@ -184,7 +239,7 @@ class AvlTree<T> implements PrintableTree {
     }
 
     if (target != null) {
-      _addNode(target, child);
+      didAdd = _addNode(target, child);
     } else {
       child.parent = parent;
     }
@@ -198,7 +253,8 @@ class AvlTree<T> implements PrintableTree {
       comparator: comparator,
       updateRoot: _updateRoot,
     );
-    return true;
+
+    return didAdd;
   }
 
   /// Removes a node from the tree based on a [searchFunc].
@@ -399,7 +455,25 @@ class AvlTree<T> implements PrintableTree {
 
 /// A node within a [AvlTree].
 class _AvlNode<T> implements PrintableNode {
-  _AvlNode(this.value);
+  _AvlNode(this.value, {this.parent, this.left, this.right});
+
+  /// Creates an [_AvlNode] with [value] as root and [left] as its left child
+  /// and [right] as its right child.
+  ///
+  /// Automatically updates the [left] and [right] to point to the node created
+  /// as their parent. The created node's [height] and [count] are also updated.
+  factory _AvlNode.of(
+    T value, {
+    required _AvlNode<T>? left,
+    required _AvlNode<T>? right,
+  }) {
+    final node = _AvlNode(value, left: left, right: right);
+    left?.parent = node;
+    right?.parent = node;
+
+    _updateHeight(node);
+    return node;
+  }
 
   final T value;
 
@@ -423,9 +497,6 @@ class _AvlNode<T> implements PrintableNode {
   bool get hasRight => right != null;
 
   @override
-  String toString() => '$value';
-
-  @override
   String get printableValue => toString();
 
   @override
@@ -433,4 +504,7 @@ class _AvlNode<T> implements PrintableNode {
         if (left != null) left!,
         if (right != null) right!,
       ];
+
+  @override
+  String toString() => '$value';
 }
