@@ -18,7 +18,7 @@ final class JoinError extends Error {
 }
 
 /// Performs a `join` operation on 2 sorted trees (sets), that is `AvlTree`s
-/// [lower] and [upper].
+/// [lower] and [upper] resulting in an entirely new `AvlTree`.
 ///
 /// If:
 ///   - Height of [lower] is greater than height of [upper] + 1 then [upper]
@@ -37,9 +37,10 @@ final class JoinError extends Error {
 /// Additionally, this function never checks that both [lower] and [upper]
 /// share the same `comparator` [BinaryCompare]. It picks the `comparator`
 /// from [lower].
+///
+/// The caller of this method must ensure that both these comparator are the
+/// same. This method will not confirm that.
 AvlTree<T> joinTrees<T>(AvlTree<T> lower, T key, AvlTree<T> upper) {
-  /// The caller of this method must ensure that both these comparator are the
-  /// same. This method will not confirm that.
   final comparator = lower.comparator;
 
   bool isWithinBound(T? value, {required bool checkLowerBound}) {
