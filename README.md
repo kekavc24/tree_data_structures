@@ -1,39 +1,39 @@
-<!-- 
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+# tree_data_structures
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/guides/libraries/writing-package-pages). 
+This repository contains a collection of tree datastructure I'm exploring. Included are:
 
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-library-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/developing-packages). 
--->
+1. [`AvlTree`](./lib/src/avl_tree/avl_tree.dart)
+2. [`RadixTree`](./lib/src/radix_tree.dart)
+3. [`PrintableTree`](./lib/src/printable_tree.dart)
 
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+## AvlTree
 
-## Features
+- Includes an `AvlTree` implementation that solely depends on the `comparator`
+defined for a single instance of the tree. All exposed methods depend on the
+`comparator` rather than a boolean `predicate`.
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
+- Additional functionalities provided are as outlined by this [Research Paper](https://arxiv.org/abs/1602.02120) by `Guy Blelloch`, `Daniel Ferizovic` and
+`Yihan Sun`.
 
-## Getting started
+- The implementation has some basic operations of an `AvlTree` (which canonically is also a `Set`) and separate (planned) implementations for:
+  1. Joining 2 AvlTrees via a mutually exclusive key ✅
+  2. Joinin 2 AvlTree without key ❌
+  3. Split an AvlTree ❌
+  4. SplitLast ❌
+  5. Insert via Split ❌
+  6. Delete via Split ❌
+  7. Union of 2 AvlTrees ❌ (Set operation)
+  8. Intersection of 2 AvlTrees ❌ (Set operation)
+  9. Difference of 2 AvlTrees ❌ (Set operation)
 
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
+## [RadixTree](https://en.wikipedia.org/wiki/Radix_tree) (WIP)
 
-## Usage
+A custom implementation of a prefix tree that uses:
 
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder. 
+1. A `HashMap` to store all the root nodes of the `RadixTree`.
+2. An `AvlTree` to store all sub-nodes of a (root) node within a `RadixTree`.
 
-```dart
-const like = 'sample';
-```
+## PrintableTree
 
-## Additional information
-
-TODO: Tell users more about the package: where to find more information, how to 
-contribute to the package, how to file issues, what response they can expect 
-from the package authors, and more.
+A basic interface for displaying (debugging) any tree implemented. All trees
+will explicitly implement this interface.
