@@ -524,8 +524,8 @@ class _AvlNode<T> implements PrintableNode {
 
   @override
   List<PrintableNode> get children => [
-        if (left != null) left!,
-        if (right != null) right!,
+        if (hasLeft) left!,
+        if (hasRight) right!,
       ];
 
   @override
