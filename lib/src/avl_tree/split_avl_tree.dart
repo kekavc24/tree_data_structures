@@ -1,6 +1,5 @@
 part of 'avl_tree.dart';
 
-
 typedef SplitTree<T> = ({AvlTree<T> left, bool isPresent, AvlTree<T> right});
 typedef _SplitNode<T> = (_AvlNode<T>? left, bool isPresent, _AvlNode<T>? right);
 
