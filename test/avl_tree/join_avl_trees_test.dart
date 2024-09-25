@@ -5,13 +5,13 @@ import 'package:tree_data_structures/src/avl_tree/avl_tree.dart';
 import '../helpers/helpers.dart';
 
 void main() {
-  final baseTree = AvlTree<int>.empty(
-    comparator: (thiz, that) => thiz.compareTo(that),
-  );
+  late AvlTree<int> baseTree;
+  late AvlTree<int> joinTree;
 
-  final joinTree = AvlTree<int>.empty(
-    comparator: (thiz, that) => thiz.compareTo(that),
-  );
+  setUpAll(() {
+    baseTree = initializeTree();
+    joinTree = initializeTree();
+  });
 
   tearDown(() {
     baseTree.clear();

@@ -8,12 +8,7 @@ void main() {
   late AvlTree<int> avlTree;
   final defaultInput = [1, 2, 3];
 
-  setUpAll(
-    () => avlTree = AvlTree.empty(
-      comparator: (thiz, that) => thiz.compareTo(that),
-    ),
-  );
-
+  setUpAll(() => avlTree = initializeTree());
   tearDown(() => avlTree.clear());
 
   group('Basic Functionality', () {
