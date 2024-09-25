@@ -1,6 +1,6 @@
 # tree_data_structures
 
-This repository contains a collection of tree datastructure I'm exploring. Included are:
+This repository contains a collection of tree data structures I'm exploring. Included are:
 
 1. [`AvlTree`](./lib/src/avl_tree/avl_tree.dart)
 2. [`RadixTree`](./lib/src/radix_tree.dart)
@@ -17,8 +17,8 @@ defined for a single instance of the tree. All exposed methods depend on the
 
 - The implementation has some basic operations of an `AvlTree` (which canonically is also a `Set`) and separate (planned) implementations for:
   1. Joining 2 AvlTrees via a mutually exclusive key ✅
-  2. Joinin 2 AvlTree without key ❌
-  3. Split an AvlTree ❌
+  2. Joining 2 AvlTree without key ❌
+  3. Split an AvlTree via key ✅
   4. SplitLast ❌
   5. Insert via Split ❌
   6. Delete via Split ❌
