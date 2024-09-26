@@ -80,3 +80,44 @@ _SplitNode<T> _split<T>(
     rRightSplit,
   );
 }
+
+typedef LastSplit<T> = ({AvlTree<T> left, T? key});
+typedef _LastSplitNode<T> = (_AvlNode<T>? left, T key);
+
+/// Splits an [AvlTree] at its largest node.
+///
+/// Unlike [splitTree] which splits based on a key, this function looks for the
+/// largest value of [T] and splits the tree there returning a [Record] with:
+///   - `left` subtree
+///   - `key` of the node where the tree was split.
+LastSplit<T> splitLastOnRight<T>(
+  AvlTree<T> tree,
+) {
+  final AvlTree(:isEmpty, :_root, :comparator) = tree;
+  if (isEmpty) return (left: AvlTree.empty(comparator: comparator), key: null);
+
+  final (left, key) = _splitLast(_root!, comparator);
+  return (left: AvlTree._(left, comparator), key: key);
+}
+
+/// Performs the actual split operation exposed by [splitLastOnRight].
+_LastSplitNode<T> _splitLast<T>(
+  _AvlNode<T> node,
+  BinaryCompare<T, T> comparator,
+) {
+  final _AvlNode(:left, value: rootKey, :right) = node;
+
+  /// We are just looking for the largest element and "splitting" the tree at
+  /// that node. And recursively joining them back together.
+  ///
+  /// Ideally, we could mark right as null and balance each node on our way
+  /// back. However, the nuance of both the paper and [joining] our nodes
+  /// proves enticing. (TODO: test performance difference)
+  if (right == null) return (left, rootKey);
+
+  final (leftOnRight, keyfromRight) = _splitLast(right, comparator);
+  return (
+    _join(left: left, key: rootKey, right: leftOnRight, comparator: comparator),
+    keyfromRight,
+  );
+}
