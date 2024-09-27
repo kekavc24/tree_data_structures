@@ -39,4 +39,21 @@ void main() {
       check(right.ordered()).deepEquals({6, 7, 8, 9, 11, 14});
     });
   });
+
+  group('Split last', () {
+    test('returns an empty tree if tree is empty', () {
+      check(splitLastOnRight(treeToSplit))
+        ..has((record) => record.left.isEmpty, 'left.isEmpty').isTrue()
+        ..has((record) => record.key, 'key').isNull();
+    });
+
+    test('splits tree on largest element', () {
+      insertAll([8, 6, 11, 7, 9, 4, 14], tree: treeToSplit);
+
+      final (:left, key: keyFromSplit) = splitLastOnRight(treeToSplit);
+
+      check(left.ordered()).deepEquals({4, 6, 7, 8, 9, 11});
+      check(keyFromSplit).equals(14);
+    });
+  });
 }
