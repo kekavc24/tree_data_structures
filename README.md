@@ -19,7 +19,7 @@ defined for a single instance of the tree. All exposed methods depend on the
   1. Joining 2 AvlTrees via a mutually exclusive key ✅
   2. Joining 2 AvlTree without key ❌
   3. Split an AvlTree via key ✅
-  4. SplitLast ❌
+  4. SplitLast ✅
   5. Insert via Split ❌
   6. Delete via Split ❌
   7. Union of 2 AvlTrees ❌ (Set operation)
