@@ -1,7 +1,7 @@
 name: tree_data_structures
 description: A starting point for Dart libraries or applications.
 version: 0.0.1
-# repository: https://github.com/my_org/my_repo
+repository: https://github.com/kekavc24/tree_data_structures
 environment:
   sdk: ^3.4.4
 # Add regular dependencies here.

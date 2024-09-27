@@ -4,6 +4,7 @@ import 'package:tree_data_structures/src/printable_tree.dart';
 
 part 'avl_tree_utils.dart';
 part 'join_avl_trees.dart';
+part 'split_avl_tree.dart';
 
 /// A basic implementation of an `AVL Tree` which is a self-balancing binary
 /// search tree but with a cheeky trick.
