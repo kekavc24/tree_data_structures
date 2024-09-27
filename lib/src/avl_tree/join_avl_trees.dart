@@ -40,8 +40,13 @@ final class JoinError extends Error {
 ///
 /// The caller of this method must ensure that both these comparator are the
 /// same. This method will not confirm that.
-AvlTree<T> joinTrees<T>(AvlTree<T> lower, T key, AvlTree<T> upper) {
-  final comparator = lower.comparator;
+AvlTree<T> joinTrees<T>({
+  required AvlTree<T> lower,
+  required T? key,
+  required AvlTree<T> upper,
+}) {
+  final AvlTree(:comparator, _root: left, highest: lowerBound) = lower;
+  final AvlTree(_root: right, lowest: upperBound) = upper;
 
   // No overlaps for joins!
   _throwOnOverlap(
@@ -51,15 +56,11 @@ AvlTree<T> joinTrees<T>(AvlTree<T> lower, T key, AvlTree<T> upper) {
     key: key,
   );
 
-  return AvlTree._(
-    _join(
-      left: lower._root,
-      key: key,
-      right: upper._root,
-      comparator: comparator,
-    ),
-    comparator,
-  );
+  final joinedNode = key == null
+      ? _joinWithoutKey(left: left, right: right, comparator: comparator)
+      : _join(left: left, key: key, right: right, comparator: comparator);
+
+  return AvlTree._(joinedNode, comparator);
 }
 
 /// Performs the actual join operation exposed by [joinTrees].
@@ -360,4 +361,20 @@ _AvlNode<T> _joinLeft<T>({
   }
 
   return _nodeAtRoot(fullRejoin);
+}
+
+/// Joins 2 nodes without a key.
+///
+/// The key, however, is obtained from the [left] node, that is, the largest
+/// value in the [left] subtree.
+_AvlNode<T>? _joinWithoutKey<T>({
+  required _AvlNode<T>? left,
+  required _AvlNode<T>? right,
+  required BinaryCompare<T, T> comparator,
+}) {
+  if (left == null) return right;
+
+  // Get largest value and join with current node on right
+  final (largest, key) = _splitLast(left, comparator);
+  return _join(left: largest, key: key, right: right, comparator: comparator);
 }
