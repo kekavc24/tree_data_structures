@@ -43,25 +43,13 @@ final class JoinError extends Error {
 AvlTree<T> joinTrees<T>(AvlTree<T> lower, T key, AvlTree<T> upper) {
   final comparator = lower.comparator;
 
-  bool isWithinBound(T? value, {required bool checkLowerBound}) {
-    if (value == null) return true;
-    final comparison = comparator(value, key);
-    return checkLowerBound ? comparison < 0 : comparison > 0;
-  }
-
-  final lBound = lower.highest;
-  final uBound = upper.lowest;
-
-  /// Highest value in [lower] must less than [key] and [lowest] value in
-  /// [upper] must be greater than [key]
-  if (!isWithinBound(lBound, checkLowerBound: true) &&
-      !isWithinBound(uBound, checkLowerBound: false)) {
-    throw JoinError(
-      key.toString(),
-      lBound?.toString() ?? '',
-      uBound?.toString() ?? '',
-    );
-  }
+  // No overlaps for joins!
+  _throwOnOverlap(
+    lowerBound: lower.highest,
+    upperBound: upper.lowest,
+    comparator: comparator,
+    key: key,
+  );
 
   return AvlTree._(
     _join(
