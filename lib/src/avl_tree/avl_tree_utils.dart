@@ -378,3 +378,73 @@ _AvlNode<T> _nodeAtRoot<T>(_AvlNode<T> node) {
 
   return current;
 }
+
+/// Checks if a value overlaps with a key such that:
+///   - If [checkLowerBound] is `true`, then [value] must be null or less than
+///     [key] if not null.
+///   - If [checkLowerBound] is `false, then [value] must be null or greater
+///     than [key] if not null.
+bool _isWithinBound<T>(
+  T? value, {
+  required bool checkLowerBound,
+  required T? key,
+  required BinaryCompare<T, T> comparator,
+}) {
+  if (value == null || key == null) return true;
+  final comparison = comparator(value, key);
+  return checkLowerBound ? comparison < 0 : comparison > 0;
+}
+
+final class JoinError extends Error {
+  JoinError(this.key, this.lowerBound, this.upperBound);
+
+  final String? key;
+
+  final String lowerBound;
+
+  final String upperBound;
+
+  String _genBody() {
+    if (key == null) {
+      return 'The lowerbound of "$lowerBound" must be less than the upperbound'
+          ' of "$upperBound"';
+    }
+
+    return 'The key "$key" must be greater than "$lowerBound" and less than'
+        ' "$upperBound" based on the comparator provided';
+  }
+
+  @override
+  String toString() {
+    return 'Cannot join 2 overlapping trees. ${_genBody()}';
+  }
+}
+
+/// Throws a [JoinError] if [lowerBound] is greater than [key] or if
+/// [upperBound] is less than [key]
+void _throwOnOverlap<T>({
+  required T? lowerBound,
+  required T? upperBound,
+  required BinaryCompare<T, T> comparator,
+  required T? key,
+}) {
+  /// Highest value in [lower] must less than [key] and [lowest] value in
+  /// [upper] must be greater than [key].
+  ///
+  ///   - Fallback to [upper] tree's lowest value if key is null
+  ///   - Fallback to [lower] tree's highest value if key is null
+  if (!_isWithinBound(lowerBound,
+          checkLowerBound: true,
+          comparator: comparator,
+          key: key ?? upperBound) &&
+      !_isWithinBound(upperBound,
+          checkLowerBound: false,
+          comparator: comparator,
+          key: key ?? lowerBound)) {
+    throw JoinError(
+      key?.toString(),
+      lowerBound?.toString() ?? '',
+      upperBound?.toString() ?? '',
+    );
+  }
+}

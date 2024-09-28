@@ -17,7 +17,7 @@ defined for a single instance of the tree. All exposed methods depend on the
 
 - The implementation has some basic operations of an `AvlTree` (which canonically is also a `Set`) and separate (planned) implementations for:
   1. Joining 2 AvlTrees via a mutually exclusive key ✅
-  2. Joining 2 AvlTree without key ❌
+  2. Joining 2 AvlTrees without key ✅
   3. Split an AvlTree via key ✅
   4. SplitLast ✅
   5. Insert via Split ❌

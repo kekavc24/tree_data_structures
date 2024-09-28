@@ -1,26 +1,9 @@
 part of 'avl_tree.dart';
 
-final class JoinError extends Error {
-  JoinError(this.key, this.lowerBound, this.upperBound);
-
-  final String key;
-
-  final String lowerBound;
-
-  final String upperBound;
-
-  @override
-  String toString() {
-    return 'Cannot join 2 overlapping trees.'
-        'The key "$key" must be greater than "$lowerBound" and lower than'
-        ' "$upperBound" based on the comparator provided';
-  }
-}
-
 /// Performs a `join` operation on 2 sorted trees (sets), that is `AvlTree`s
 /// [lower] and [upper] resulting in an entirely new `AvlTree`.
 ///
-/// If:
+/// If the [key] is not `null`:
 ///   - Height of [lower] is greater than height of [upper] + 1 then [upper]
 ///     joins [lower] in the `right-most` child whose height is less than or
 ///     equal to height of [upper] + 1.
@@ -29,6 +12,9 @@ final class JoinError extends Error {
 ///     equal to height of [lower] + 1.
 ///   - None of the above are satisfied, a new [AvlTree] is formed by joining
 ///     [lower] and [upper] with [key] as the root.
+///
+/// If the [key] is null, they are joined via the highest value in the
+/// [lower] `AvlTree` which acts as the [key].
 ///
 /// It is imperative that values in [lower] and [upper] do not overlap with the
 /// key such that, `highest value` in [lower] `<` [key] `&&` `lowest value` in
@@ -40,38 +26,27 @@ final class JoinError extends Error {
 ///
 /// The caller of this method must ensure that both these comparator are the
 /// same. This method will not confirm that.
-AvlTree<T> joinTrees<T>(AvlTree<T> lower, T key, AvlTree<T> upper) {
-  final comparator = lower.comparator;
+AvlTree<T> joinTrees<T>({
+  required AvlTree<T> lower,
+  required T? key,
+  required AvlTree<T> upper,
+}) {
+  final AvlTree(:comparator, _root: left, highest: lowerBound) = lower;
+  final AvlTree(_root: right, lowest: upperBound) = upper;
 
-  bool isWithinBound(T? value, {required bool checkLowerBound}) {
-    if (value == null) return true;
-    final comparison = comparator(value, key);
-    return checkLowerBound ? comparison < 0 : comparison > 0;
-  }
-
-  final lBound = lower.highest;
-  final uBound = upper.lowest;
-
-  /// Highest value in [lower] must less than [key] and [lowest] value in
-  /// [upper] must be greater than [key]
-  if (!isWithinBound(lBound, checkLowerBound: true) &&
-      !isWithinBound(uBound, checkLowerBound: false)) {
-    throw JoinError(
-      key.toString(),
-      lBound?.toString() ?? '',
-      uBound?.toString() ?? '',
-    );
-  }
-
-  return AvlTree._(
-    _join(
-      left: lower._root,
-      key: key,
-      right: upper._root,
-      comparator: comparator,
-    ),
-    comparator,
+  // No overlaps for joins!
+  _throwOnOverlap(
+    lowerBound: lowerBound,
+    upperBound: upperBound,
+    comparator: comparator,
+    key: key,
   );
+
+  final joinedNode = key == null
+      ? _joinWithoutKey(left: left, right: right, comparator: comparator)
+      : _join(left: left, key: key, right: right, comparator: comparator);
+
+  return AvlTree._(joinedNode, comparator);
 }
 
 /// Performs the actual join operation exposed by [joinTrees].
@@ -372,4 +347,25 @@ _AvlNode<T> _joinLeft<T>({
   }
 
   return _nodeAtRoot(fullRejoin);
+}
+
+/// Joins 2 nodes without a key.
+///
+/// The key, however, is obtained from the [left] node, that is, the largest
+/// value in the [left] subtree.
+_AvlNode<T>? _joinWithoutKey<T>({
+  required _AvlNode<T>? left,
+  required _AvlNode<T>? right,
+  required BinaryCompare<T, T> comparator,
+}) {
+  if (left == null) return right;
+
+  // Get largest value and join with current node on right
+  final (leftOnRight, key) = _splitLast(left, comparator);
+  return _join(
+    left: leftOnRight,
+    key: key,
+    right: right,
+    comparator: comparator,
+  );
 }
