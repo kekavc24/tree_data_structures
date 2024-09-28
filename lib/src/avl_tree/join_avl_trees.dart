@@ -3,7 +3,7 @@ part of 'avl_tree.dart';
 /// Performs a `join` operation on 2 sorted trees (sets), that is `AvlTree`s
 /// [lower] and [upper] resulting in an entirely new `AvlTree`.
 ///
-/// If:
+/// If the [key] is not `null`:
 ///   - Height of [lower] is greater than height of [upper] + 1 then [upper]
 ///     joins [lower] in the `right-most` child whose height is less than or
 ///     equal to height of [upper] + 1.
@@ -12,6 +12,9 @@ part of 'avl_tree.dart';
 ///     equal to height of [lower] + 1.
 ///   - None of the above are satisfied, a new [AvlTree] is formed by joining
 ///     [lower] and [upper] with [key] as the root.
+///
+/// If the [key] is null, they are joined via the highest value in the
+/// [lower] `AvlTree` which acts as the [key].
 ///
 /// It is imperative that values in [lower] and [upper] do not overlap with the
 /// key such that, `highest value` in [lower] `<` [key] `&&` `lowest value` in
@@ -33,8 +36,8 @@ AvlTree<T> joinTrees<T>({
 
   // No overlaps for joins!
   _throwOnOverlap(
-    lowerBound: lower.highest,
-    upperBound: upper.lowest,
+    lowerBound: lowerBound,
+    upperBound: upperBound,
     comparator: comparator,
     key: key,
   );
@@ -358,6 +361,11 @@ _AvlNode<T>? _joinWithoutKey<T>({
   if (left == null) return right;
 
   // Get largest value and join with current node on right
-  final (largest, key) = _splitLast(left, comparator);
-  return _join(left: largest, key: key, right: right, comparator: comparator);
+  final (leftOnRight, key) = _splitLast(left, comparator);
+  return _join(
+    left: leftOnRight,
+    key: key,
+    right: right,
+    comparator: comparator,
+  );
 }
