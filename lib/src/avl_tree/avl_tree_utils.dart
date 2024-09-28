@@ -395,6 +395,31 @@ bool _isWithinBound<T>(
   return checkLowerBound ? comparison < 0 : comparison > 0;
 }
 
+final class JoinError extends Error {
+  JoinError(this.key, this.lowerBound, this.upperBound);
+
+  final String? key;
+
+  final String lowerBound;
+
+  final String upperBound;
+
+  String _genBody() {
+    if (key == null) {
+      return 'The lowerbound of "$lowerBound" must be less than the upperbound'
+          ' of "$upperBound"';
+    }
+
+    return 'The key "$key" must be greater than "$lowerBound" and less than'
+        ' "$upperBound" based on the comparator provided';
+  }
+
+  @override
+  String toString() {
+    return 'Cannot join 2 overlapping trees. ${_genBody()}';
+  }
+}
+
 /// Throws a [JoinError] if [lowerBound] is greater than [key] or if
 /// [upperBound] is less than [key]
 void _throwOnOverlap<T>({
@@ -417,7 +442,7 @@ void _throwOnOverlap<T>({
           comparator: comparator,
           key: key ?? lowerBound)) {
     throw JoinError(
-      key.toString(),
+      key?.toString(),
       lowerBound?.toString() ?? '',
       upperBound?.toString() ?? '',
     );
