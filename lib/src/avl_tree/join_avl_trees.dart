@@ -361,9 +361,9 @@ _AvlNode<T>? _joinWithoutKey<T>({
   if (left == null) return right;
 
   // Get largest value and join with current node on right
-  final (leftOnRight, key) = _splitLast(left, comparator);
+  final (rigthOnLeft, key) = _splitLast(left, comparator);
   return _join(
-    left: leftOnRight,
+    left: rigthOnLeft,
     key: key,
     right: right,
     comparator: comparator,
