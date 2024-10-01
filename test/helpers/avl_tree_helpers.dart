@@ -5,7 +5,7 @@ AvlTree<int> initializeTree() =>
     AvlTree.empty(comparator: (thiz, that) => thiz.compareTo(that));
 
 /// Inserts all [values] into the [tree]
-void insertAll(List<int> values, {required AvlTree<int> tree}) {
+void insertAll(Iterable<int> values, {required AvlTree<int> tree}) {
   for (final value in values) {
     tree.insert(value);
   }

@@ -2,6 +2,9 @@ import 'dart:math';
 
 import 'package:tree_data_structures/src/printable_tree.dart';
 
+part 'avl_tree_difference.dart';
+part 'avl_tree_intersection.dart';
+part 'avl_tree_union.dart';
 part 'avl_tree_utils.dart';
 part 'join_avl_trees.dart';
 part 'split_avl_tree.dart';

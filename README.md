@@ -22,9 +22,9 @@ defined for a single instance of the tree. All exposed methods depend on the
   4. SplitLast ✅
   5. Insert via Split ❌
   6. Delete via Split ❌
-  7. Union of 2 AvlTrees ❌ (Set operation)
-  8. Intersection of 2 AvlTrees ❌ (Set operation)
-  9. Difference of 2 AvlTrees ❌ (Set operation)
+  7. Union of 2 AvlTrees ✅ (Set operation)
+  8. Intersection of 2 AvlTrees ✅ (Set operation)
+  9. Difference of 2 AvlTrees ✅ (Set operation)
 
 ## [RadixTree](https://en.wikipedia.org/wiki/Radix_tree) (WIP)
 
