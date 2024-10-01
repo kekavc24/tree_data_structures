@@ -83,7 +83,9 @@ _AvlNode<T> _join<T>({
 
   /// If above conditions are not satisfied, we can safely just create a new
   /// node with `k` as the root
-  return _AvlNode.of(key, left: left, right: right);
+  final directJoin = _AvlNode.of(key, left: left, right: right);
+  _rebalance(directJoin, comparator: comparator, updateRoot: null);
+  return _nodeAtRoot(directJoin);
 }
 
 /// Recursively looks for a `right` child in the [left] subtree whose height
