@@ -1,6 +1,6 @@
 import 'package:checks/checks.dart';
 import 'package:test/scaffolding.dart';
-import 'package:tree_data_structures/src/radix_tree.dart';
+import 'package:tree_data_structures/src/radix_tree/radix_tree.dart';
 
 void main() {
   final radixTree = RadixTree();
